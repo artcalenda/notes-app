@@ -1,0 +1,24 @@
+{
+  "name": "notes-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready Simple Note app with Bun, Elysia, React, and SQLite",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"bun run --filter backend dev\" \"bun run --filter frontend dev\"",
+    "dev:backend": "bun run --filter backend dev",
+    "dev:frontend": "bun run --filter frontend dev",
+    "build": "bun run --filter frontend build && bun run --filter backend build",
+    "start": "bun run --filter backend start",
+    "migrate": "bun run --filter backend migrate",
+    "db:generate": "bun run --filter backend db:generate",
+    "db:migrate": "bun run --filter backend migrate",
+    "typecheck": "bun run --filter backend typecheck && bun run --filter frontend typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
