@@ -8,3 +8,5 @@ data/*.sqlite
 data/*.sqlite3
 *.log
 .DS_Store
+.push-*
+.mcp-*
