@@ -3,19 +3,16 @@ import { resolve } from "path";
 import { z } from "zod";
 
 function resolveStaticDir(value: string | undefined): string | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  if (value.startsWith("/")) {
-    return value;
-  }
-
-  const candidates = [
-    resolve(process.cwd(), value),
-    resolve(process.cwd(), "../frontend/dist"),
-    resolve(process.cwd(), "frontend/dist"),
-  ];
+  const candidates = value
+    ? [
+        value.startsWith("/") ? value : resolve(process.cwd(), value),
+        resolve(process.cwd(), "../frontend/dist"),
+        resolve(process.cwd(), "frontend/dist"),
+      ]
+    : [
+        resolve(process.cwd(), "../frontend/dist"),
+        resolve(process.cwd(), "frontend/dist"),
+      ];
 
   for (const candidate of candidates) {
     if (existsSync(resolve(candidate, "index.html"))) {
@@ -23,7 +20,7 @@ function resolveStaticDir(value: string | undefined): string | undefined {
     }
   }
 
-  return resolve(process.cwd(), value);
+  return undefined;
 }
 
 const envSchema = z.object({
