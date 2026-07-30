@@ -10,3 +10,7 @@ data/*.sqlite3
 .DS_Store
 .push-*
 .mcp-*
+.mcp-args/
+.push-payloads/
+.push-lock-*
+backend/data/*.db*
