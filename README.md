@@ -50,7 +50,7 @@ Production-ready note-taking app with a Bun + Elysia API, React frontend, SQLite
 1. Install dependencies:
 
 ```bash
-bun install
+bun install && bun run install:all
 ```
 
 2. Copy environment variables:
@@ -157,7 +157,7 @@ curl -X DELETE http://localhost:3000/notes/1
 ## Production build
 
 ```bash
-bun install
+bun run install:all
 bun run migrate
 bun run build
 STATIC_DIR=./frontend/dist NODE_ENV=production bun run start
@@ -180,16 +180,42 @@ Open http://localhost:3000
 
 1. Push this repository to GitHub.
 2. In the [Hostman](https://hostman.com) dashboard, create a new app and connect the repo.
-3. Use these settings:
+
+### Full-stack deployment (API + React UI)
+
+Deploy from the **repository root**. Leave **Project directory path** empty.
 
 | Setting | Value |
 |---------|-------|
 | Runtime | Bun |
-| Install command | `bun install` |
+| Project directory path | *(leave empty)* |
+| Install command | `bun run install:all` |
 | Build command | `bun run build` |
 | Start command | `STATIC_DIR=./frontend/dist NODE_ENV=production bun run start` |
 | Port | `PORT` (platform-provided) |
 | Health check path | `/health` |
+
+Do **not** run `bun install` alone at the repo root. The root lockfile is for local dev tools only (`concurrently`). Backend and frontend each have their own `bun.lock` under `backend/` and `frontend/`.
+
+### API-only deployment (recommended if Hostman reports workspace errors)
+
+Point Hostman at the backend package directly. This app uses **Elysia** (not NestJS), but the same Hostman settings apply.
+
+| Setting | Value |
+|---------|-------|
+| Project directory path | `backend` |
+| Install command | `bun install --frozen-lockfile` |
+| Build command | `bun run build` |
+| Start command | `NODE_ENV=production bun run start` |
+| Health check path | `/health` |
+
+With **Project directory path** set to `backend`, Hostman reads `backend/package.json` and `backend/bun.lock` only. No workspace resolution happens at the repo root.
+
+**Wrong (causes "Workspace not found backend/frontend"):**
+
+- Project directory path: `backend` + Install command: `bun install` at repo root
+- Root `package.json` with `"workspaces": ["backend", "frontend"]` (removed in this repo)
+- Root `bun.lock` that links `backend@workspace:backend` (regenerated — use per-package lockfiles)
 
 4. **System dependencies** (required for a successful install/build):
 
