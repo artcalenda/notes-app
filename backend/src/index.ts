@@ -1,11 +1,11 @@
 import { cors } from "@elysiajs/cors";
-import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import { loadEnv } from "./config/env";
 import { createDb } from "./db";
 import { runMigrations } from "./db/migrate";
 import { NotesRepository } from "./repositories/notes.repository";
 import { createNotesRoutes } from "./routes/notes.routes";
+import { logStaticDir, registerStaticRoutes } from "./routes/static.routes";
 import { NotesService } from "./services/notes.service";
 import { successResponse } from "./types/api-response";
 
@@ -25,23 +25,8 @@ function startServer() {
     .use(createNotesRoutes(notesService));
 
   if (env.STATIC_DIR) {
-    app.use(
-      staticPlugin({
-        assets: env.STATIC_DIR,
-        prefix: "/",
-      }),
-    );
-
-    app.get("/*", ({ request, set }) => {
-      const url = new URL(request.url);
-      if (url.pathname.startsWith("/notes") || url.pathname === "/health") {
-        set.status = 404;
-        return { success: false, message: "Not found" };
-      }
-
-      set.headers["content-type"] = "text/html; charset=utf-8";
-      return Bun.file(`${env.STATIC_DIR}/index.html`);
-    });
+    registerStaticRoutes(app, env.STATIC_DIR);
+    logStaticDir(env.STATIC_DIR);
   }
 
   const hostname = process.env.HOST ?? "0.0.0.0";

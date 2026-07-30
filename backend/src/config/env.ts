@@ -2,21 +2,34 @@ import { existsSync } from "fs";
 import { resolve } from "path";
 import { z } from "zod";
 
+const repoRoot = resolve(import.meta.dir, "../../..");
+const backendRoot = resolve(import.meta.dir, "../..");
+
 function resolveStaticDir(value: string | undefined): string | undefined {
-  const candidates = value
-    ? [
-        value.startsWith("/") ? value : resolve(process.cwd(), value),
-        resolve(process.cwd(), "../frontend/dist"),
-        resolve(process.cwd(), "frontend/dist"),
-      ]
-    : [
-        resolve(process.cwd(), "../frontend/dist"),
-        resolve(process.cwd(), "frontend/dist"),
-      ];
+  const candidates = [
+    ...(value
+      ? [value.startsWith("/") ? value : resolve(repoRoot, value)]
+      : []),
+    resolve(repoRoot, "frontend/dist"),
+    resolve(backendRoot, "../frontend/dist"),
+    ...(value
+      ? [value.startsWith("/") ? value : resolve(process.cwd(), value)]
+      : []),
+    resolve(process.cwd(), "frontend/dist"),
+    resolve(process.cwd(), "../frontend/dist"),
+  ];
+
+  const seen = new Set<string>();
 
   for (const candidate of candidates) {
-    if (existsSync(resolve(candidate, "index.html"))) {
-      return candidate;
+    const normalized = resolve(candidate);
+    if (seen.has(normalized)) {
+      continue;
+    }
+    seen.add(normalized);
+
+    if (existsSync(resolve(normalized, "index.html"))) {
+      return normalized;
     }
   }
 
