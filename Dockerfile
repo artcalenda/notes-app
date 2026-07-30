@@ -2,8 +2,6 @@ FROM oven/bun:1.2 AS builder
 
 WORKDIR /app
 
-# Hostman/Docker builds often set NODE_ENV=production globally, which would
-# skip devDependencies during install. Force development for the builder stage.
 ENV NODE_ENV=development
 
 COPY package.json ./
@@ -17,9 +15,6 @@ RUN bun install --cwd backend --frozen-lockfile && bun install --cwd frontend --
 COPY backend ./backend
 COPY frontend ./frontend
 
-WORKDIR /app/backend
-RUN bun run migrate
-
 WORKDIR /app
 RUN bun run build
 
@@ -27,6 +22,7 @@ FROM oven/bun:1.2-slim
 
 WORKDIR /app
 
+COPY --from=builder /app/package.json ./
 COPY --from=builder /app/backend/package.json ./backend/
 COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/drizzle ./backend/drizzle
@@ -37,11 +33,10 @@ COPY --from=builder /app/frontend/dist ./frontend/dist
 RUN mkdir -p /app/data
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 ENV DATABASE_PATH=/app/data/notes.db
 ENV STATIC_DIR=./frontend/dist
 
-EXPOSE 3000
+EXPOSE 8080
 
-WORKDIR /app/backend
-CMD ["sh", "-c", "bun run migrate && bun run dist/index.js"]
+CMD ["bun", "backend/src/index.ts"]
