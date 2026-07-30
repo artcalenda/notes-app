@@ -48,7 +48,13 @@ app.listen({
 });
 
 console.log(
-  `Simple Note API running at http://0.0.0.0:${env.PORT} (${env.NODE_ENV})`,
+  `Simple Note API listening on 0.0.0.0:${env.PORT} (${env.NODE_ENV})`,
 );
+if (env.STATIC_DIR) {
+  console.log(`Serving frontend from ${env.STATIC_DIR}`);
+} else {
+  console.log("Frontend static files disabled (API-only mode)");
+}
+console.log(`Database: ${env.DATABASE_PATH}`);
 
 export type App = typeof app;
