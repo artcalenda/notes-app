@@ -24,7 +24,16 @@ function resolveStaticDir(value: string | undefined): string | undefined {
 }
 
 const envSchema = z.object({
-  PORT: z.coerce.number().default(3000),
+  PORT: z.preprocess(
+    (value) => {
+      const raw = value ?? process.env.PORT;
+      if (raw === undefined || raw === "") {
+        return 8080;
+      }
+      return Number(raw);
+    },
+    z.number().int().positive(),
+  ),
   DATABASE_PATH: z
     .string()
     .default("./data/notes.db")
