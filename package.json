@@ -10,7 +10,7 @@
     "dev:frontend": "bun run --cwd frontend dev",
     "build": "bun run --cwd frontend build && bun run --cwd backend build",
     "build:hostman": "bun run install:all && bun run build",
-    "start": "bun backend/src/index.ts",
+    "start": "bun src/index.ts",
     "migrate": "bun run --cwd backend migrate",
     "db:generate": "bun run --cwd backend db:generate",
     "db:migrate": "bun run --cwd backend migrate",
