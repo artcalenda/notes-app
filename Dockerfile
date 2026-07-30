@@ -2,6 +2,10 @@ FROM oven/bun:1.2 AS builder
 
 WORKDIR /app
 
+# Hostman/Docker builds often set NODE_ENV=production globally, which would
+# skip devDependencies during install. Force development for the builder stage.
+ENV NODE_ENV=development
+
 COPY package.json ./
 COPY backend/package.json ./backend/
 COPY backend/bun.lock ./backend/
