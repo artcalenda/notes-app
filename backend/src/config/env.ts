@@ -30,7 +30,8 @@ const envSchema = z.object({
       if (raw === undefined || raw === "") {
         return 8080;
       }
-      return Number(raw);
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 8080;
     },
     z.number().int().positive(),
   ),

@@ -3,6 +3,7 @@ import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import { loadEnv } from "./config/env";
 import { createDb } from "./db";
+import { runMigrations } from "./db/migrate";
 import { NotesRepository } from "./repositories/notes.repository";
 import { createNotesRoutes } from "./routes/notes.routes";
 import { NotesService } from "./services/notes.service";
@@ -64,11 +65,16 @@ function startServer() {
   return app;
 }
 
-try {
-  startServer();
-} catch (error) {
-  console.error("Failed to start Simple Note API:", error);
-  process.exit(1);
+async function main() {
+  try {
+    await runMigrations();
+    startServer();
+  } catch (error) {
+    console.error("Failed to start Simple Note API:", error);
+    process.exit(1);
+  }
 }
+
+await main();
 
 export type App = ReturnType<typeof startServer>;
